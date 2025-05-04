@@ -79,6 +79,7 @@ Every response is powered by the Universal Narrative Genome — Jordi just knows
 * Node.js (v18+)
 * PostgreSQL with pgvector extension
 * OpenAI API key
+* Access to StoryDredge processed data (for importing stories)
 
 ### Installation
 
@@ -96,6 +97,16 @@ npx prisma migrate dev
 5. Start the development server:  
 npm run dev
 6. Visit <http://localhost:3000> to start exploring the Human Story Atlas.
+
+### Data Import from StoryDredge
+
+The Human Story Atlas relies on processed story data from the StoryDredge project. To import data:
+
+1. Ensure the StoryDredge data is available in the project's `StoryDredge/output/hsa-ready` directory
+2. Run the import script: `npm run import:dredge`
+3. Verify the import was successful: `npm run verify:dredge`
+
+For detailed information about the data import process, see the [Data Import Documentation](docs/DATA_IMPORT.md).
 
 ## Usage
 

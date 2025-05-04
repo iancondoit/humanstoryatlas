@@ -1,6 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const { PrismaClient } = require('@prisma/client');
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+import { PrismaClient } from '@prisma/client';
+
+// Get the directory name using ES modules approach
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize Prisma client
 const prisma = new PrismaClient();

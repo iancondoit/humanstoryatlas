@@ -1,10 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
+
+// Get the directory name using ES modules approach
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Constants
 const HSA_READY_DIR = '/Users/ianhoppe/Documents/StoryDredge/output/hsa-ready';
 const VALID_SECTION = 'news';
+const FORCE_REIMPORT = true; // Set to true to force reimport even if stories exist
+const CLEAR_DB_FIRST = true; // Set to true to clear the database before importing
+const BATCH_SIZE = 10; // Number of stories to process before committing to database
 const prisma = new PrismaClient();
 
 // Track import statistics
@@ -42,19 +50,43 @@ async function processFile(filePath: string): Promise<void> {
       return;
     }
     
-    // Check if story already exists
-    const existingStory = await prisma.story.findFirst({
-      where: {
-        rawText: {
-          contains: storyData.source_url
+    // Check if story already exists (skip this check if FORCE_REIMPORT is true)
+    if (!FORCE_REIMPORT) {
+      const existingStory = await prisma.story.findFirst({
+        where: {
+          rawText: {
+            contains: storyData.source_url
+          }
         }
+      });
+      
+      if (existingStory) {
+        console.log(`Story already exists: ${storyData.headline}`);
+        importStats.skipped++;
+        return;
       }
-    });
-    
-    if (existingStory) {
-      console.log(`Story already exists: ${storyData.headline}`);
-      importStats.skipped++;
-      return;
+    } else {
+      // If force reimport is enabled, delete existing stories with the same source_url
+      try {
+        const existingStories = await prisma.story.findMany({
+          where: {
+            rawText: {
+              contains: storyData.source_url
+            }
+          }
+        });
+        
+        if (existingStories.length > 0) {
+          console.log(`Deleting ${existingStories.length} existing version(s) of: ${storyData.headline}`);
+          for (const story of existingStories) {
+            await prisma.story.delete({
+              where: { id: story.id }
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Error deleting existing story: ${error}`);
+      }
     }
     
     // Append metadata to the raw text to preserve StoryDredge information
@@ -63,7 +95,7 @@ async function processFile(filePath: string): Promise<void> {
 Source: ${storyData.publication}
 URL: ${storyData.source_url}
 Issue: ${storyData.source_issue}
-Tags: ${storyData.tags.join(', ')}
+Tags: ${storyData.tags?.join(', ') || ''}
 Imported from: StoryDredge
 ${storyData.byline ? `Byline: ${storyData.byline}` : ''}
 ${storyData.dateline ? `Dateline: ${storyData.dateline}` : ''}
@@ -72,25 +104,30 @@ ${storyData.dateline ? `Dateline: ${storyData.dateline}` : ''}
 `;
     
     // Combine metadata and body
-    const enhancedText = metadataBlock + storyData.body;
+    const enhancedText = metadataBlock + (storyData.body || '');
     
-    // Map StoryDredge data to HSA model
-    const story = await prisma.story.create({
-      data: {
-        title: storyData.headline,
-        rawText: enhancedText,
-        processedText: storyData.body, // Only the actual content for processing
-        timestamp: new Date(storyData.timestamp),
-        sourceType: storyData.publication,
-        location: storyData.dateline || undefined,
-      }
-    });
-    
-    console.log(`Imported story: ${storyData.headline}`);
-    importStats.imported++;
+    try {
+      // Create a new story
+      await prisma.story.create({
+        data: {
+          title: storyData.headline,
+          rawText: enhancedText,
+          processedText: storyData.body || '',
+          timestamp: storyData.timestamp ? new Date(storyData.timestamp) : new Date(),
+          sourceType: storyData.publication || 'Unknown',
+          location: storyData.dateline || '',
+        }
+      });
+      
+      console.log(`Imported story: ${storyData.headline}`);
+      importStats.imported++;
+    } catch (dbError) {
+      console.error(`Error importing story ${storyData.headline}: ${dbError}`);
+      importStats.failed++;
+    }
     
   } catch (error) {
-    console.error(`Error processing file ${filePath}:`, error);
+    console.error(`Error processing file ${filePath}: ${error}`);
     importStats.failed++;
   }
 }
@@ -133,26 +170,67 @@ async function importFromDredge(): Promise<void> {
   
   console.log('Directory exists!');
   
-  // Find all json files
-  const jsonFiles = findJsonFiles(HSA_READY_DIR);
-  console.log(`Found ${jsonFiles.length} JSON files`);
+  // Make sure the database is connected
+  try {
+    await prisma.$connect();
+    console.log("Database connection established.");
+  } catch (dbError) {
+    console.error("Error connecting to database:", dbError);
+    return;
+  }
   
-  // Just print the first 5 file paths
-  jsonFiles.slice(0, 5).forEach(file => {
-    console.log(`Found file: ${file}`);
-  });
-  
-  const endTime = Date.now();
-  const duration = (endTime - startTime) / 1000;
-  
-  console.log(`
+  try {
+    // Optionally clear database first
+    if (CLEAR_DB_FIRST) {
+      console.log("Clearing database before import...");
+      await clearDatabase();
+    }
+    
+    // Count existing stories
+    const existingStoriesCount = await prisma.story.count();
+    console.log(`Current story count in database: ${existingStoriesCount}`);
+    
+    // Find all json files from the external StoryDredge directory
+    console.log(`Searching for JSON files in ${HSA_READY_DIR}`);
+    const jsonFiles = findJsonFiles(HSA_READY_DIR);
+    importStats.found = jsonFiles.length;
+    console.log(`Found ${jsonFiles.length} JSON files to process`);
+    
+    // Process each file
+    console.log('Starting file processing...');
+    for (const filePath of jsonFiles) {
+      await processFile(filePath);
+      
+      // Log progress periodically
+      if ((importStats.imported + importStats.skipped + importStats.failed) % 10 === 0) {
+        const progress = (importStats.imported + importStats.skipped + importStats.failed) / importStats.found * 100;
+        console.log(`Progress: ${progress.toFixed(1)}% (${importStats.imported + importStats.skipped + importStats.failed}/${importStats.found})`);
+      }
+    }
+    
+    // Count stories after import
+    const finalStoriesCount = await prisma.story.count();
+    console.log(`Final story count in database: ${finalStoriesCount}`);
+    console.log(`Net change: ${finalStoriesCount - existingStoriesCount} stories`);
+    
+  } catch (error) {
+    console.error("Error during import process:", error);
+  } finally {
+    const endTime = Date.now();
+    const duration = (endTime - startTime) / 1000;
+    
+    console.log(`
 Import complete.
-Found: ${jsonFiles.length} stories
+Found: ${importStats.found} stories
+Imported: ${importStats.imported}
+Skipped: ${importStats.skipped}
+Failed: ${importStats.failed}
 Duration: ${duration.toFixed(2)} seconds
-  `);
-  
-  // Close the Prisma client when done
-  await prisma.$disconnect();
+    `);
+    
+    // Close the Prisma client when done
+    await prisma.$disconnect();
+  }
 }
 
 // Helper function to find all JSON files in a directory
@@ -174,6 +252,16 @@ function findJsonFiles(dir: string): string[] {
   }
   
   return results;
+}
+
+// Function to clear all stories from the database
+async function clearDatabase(): Promise<void> {
+  try {
+    const deleteCount = await prisma.story.deleteMany({});
+    console.log(`Deleted ${deleteCount.count} stories from database.`);
+  } catch (error) {
+    console.error("Error clearing database:", error);
+  }
 }
 
 // Run the import

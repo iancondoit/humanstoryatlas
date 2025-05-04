@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Starting StoryDredge import test"
-STORIES=$(find /Users/ianhoppe/Documents/StoryDredge/output/hsa-ready -type f -name "*.json" | head -5)
+STORIES=$(find "/Users/ianhoppe/Documents/StoryDredge/output/hsa-ready" -type f -name "*.json" | head -5)
 
 echo "Found $(echo "$STORIES" | wc -l) stories to test"
 
