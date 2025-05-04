@@ -8,7 +8,7 @@ import GenomeStats from '@/components/GenomeStats';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import NLQueryResponse from '@/components/NLQueryResponse';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { filterStories } from '@/lib/mockData';
+import { fetchStories, type SearchResults } from '@/lib/api';
 
 // Define types for our results
 interface Story {
@@ -27,12 +27,6 @@ interface Arc {
   timespan: string;
   summary: string;
   themes?: string[];
-}
-
-interface SearchResults {
-  stories: Story[];
-  arcs: Arc[];
-  suggestedFollowups: string[];
 }
 
 export default function Home() {
@@ -69,16 +63,19 @@ export default function Home() {
     setSubmittedPrompt(searchPrompt); // Store the submitted prompt for NLQueryResponse
     
     try {
-      // Use client-side filtering instead of API call for now
-      // This could be replaced with a fetch call to /api/search or /api/mockSearch
-      const filteredResults = filterStories(searchPrompt);
+      // Use the API client to fetch real data from the backend
+      const searchResults = await fetchStories({
+        query: searchPrompt,
+        publication: filters.publication,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        limit: 10
+      });
       
-      setTimeout(() => {
-        setResults(filteredResults);
-        setIsLoading(false);
-      }, 600); // Small delay to simulate network request
+      setResults(searchResults);
     } catch (error) {
       console.error('Error searching:', error);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -90,7 +87,7 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <Globe className="h-6 w-6 text-blue-500" />
           <h1 className="text-2xl font-bold text-white">Human Story Atlas 🧬</h1>
-          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v1.4.0</span>
+          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v1.5.0</span>
         </div>
         <div className="flex items-center gap-4">
           {/* Compact GenomeStats in header */}
