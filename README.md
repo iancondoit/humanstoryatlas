@@ -1,86 +1,104 @@
-# Human Story Atlas
+# 🧬 Human Story Atlas (v1.0.0)
 
-A modern web application for exploring and analyzing stories through time, discovering patterns and connections in human narratives.
+An interactive scientific exploration of narrative connections across human experience. Human Story Atlas is a powerful tool for discovering hidden narrative arcs and forgotten stories through a chat-driven interface.
 
-## Features
+## About the Project
 
-- **Story Browser**: Browse and search through stories with advanced filtering
-- **Arc Visualization**: View and analyze narrative arcs that connect stories
-- **Timeline View**: Explore stories and arcs on an interactive timeline
-- **Narrative Genes**: Visualize story characteristics through narrative gene expressions
-- **Similarity Analysis**: Discover related stories and arcs through vector similarity
+Human Story Atlas is built on the Universal Narrative Genome - a structured scientific decoding of story patterns across time, culture, and genre. It allows users to explore vast collections of stories and uncover hidden connections using natural language queries.
 
-## Tech Stack
+## 🧠 What Is the Human Story Atlas?
 
-- **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS
-- **UI Library**: shadcn/ui
-- **Data Fetching**: SWR
-- **Database**: Prisma/PostgreSQL
-- **Visualization**: D3.js, Recharts
+The Human Story Atlas is a narrative discovery engine built on top of digitized news archives. It does not return articles. It surfaces **story potential** — arcs, themes, conflicts, and forgotten threads buried in historical data.
+
+### Key Features
+
+- Conversational interface (Jordi) that responds like a narrative researcher
+- Real-time story clustering powered by the Universal Narrative Genome
+- Thematic story labeling (e.g. "Cold War thriller", "forgotten HBO pilot")
+- Emerging arc detection and synthesis from OCR-processed historical sources
+
+This tool helps researchers, filmmakers, journalists, and creatives discover **compelling stories that history almost forgot**.
+
+## Key Features
+
+### 💬 Chat-Driven Interface with Jordi
+
+* Ask natural language questions about stories, arcs, and narrative patterns
+* Discover hidden connections and forgotten narratives
+* Intelligent query processing that understands narrative context
+* Conversational interface with an archivist's narrative voice
+
+### 🔍 Smart Filtering
+
+* Filter by publication source
+* Set date ranges for temporal analysis
+* Dynamically narrow search scope
+
+### 🧩 Narrative Arc Discovery
+
+* AI-powered story arc detection
+* Visualization of related stories across time
+* Thematic and structural pattern recognition
+* Creative labeling of arc types (e.g., "Local Scandal with National Implications", "Gothic Mystery")
+
+### 📊 Universal Narrative Genome Stats
+
+* Track story nodes indexed
+* Monitor narrative arcs detected
+* Map entities across the narrative space
+
+## Technology Stack
+
+* **Frontend**: Next.js 14, React, Tailwind CSS
+* **Backend**: Next.js API routes with Prisma ORM
+* **Database**: PostgreSQL with pgvector for vector storage
+* **AI**: OpenAI for natural language understanding and vector embeddings
 
 ## Getting Started
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/human-story-atlas.git
-   cd human-story-atlas
-   ```
+### Prerequisites
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+* Node.js (v18+)
+* PostgreSQL with pgvector extension
+* OpenAI API key
 
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env.local
-   ```
-   Edit `.env.local` with your configuration.
+### Installation
 
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+1. Clone the repository:  
+git clone https://github.com/your-username/human-story-atlas.git  
+cd human-story-atlas
+2. Install dependencies:  
+npm install
+3. Set up environment variables:  
+cp .env.example .env.local  
+# Add your OpenAI API key and database connection details
+4. Set up the database:  
+npx prisma generate  
+npx prisma migrate dev
+5. Start the development server:  
+npm run dev
+6. Visit <http://localhost:3000> to start exploring the Human Story Atlas.
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+## Usage
 
-## Project Structure
+1. **Apply filters** to set your search context (publication, date range)
+2. **Ask a question** in the prompt box or select an example prompt
+3. **Explore results** showing discovered narrative arcs and key stories
+4. **Follow suggested queries** to dive deeper into the narrative space
 
-```
-src/
-├── app/                    # Next.js app router pages
-│   ├── (routes)/          # Main application routes
-│   │   ├── stories/       # Story-related pages
-│   │   ├── arcs/          # Arc-related pages
-│   │   └── timeline/      # Timeline visualization
-│   └── debug/             # Development tools
-├── components/            # Reusable components
-│   ├── ui/               # shadcn/ui components
-│   ├── layout/           # Layout components
-│   ├── stories/          # Story-related components
-│   ├── arcs/             # Arc-related components
-│   └── timeline/         # Timeline components
-└── lib/                  # Utility functions and configurations
-```
+## Example Prompts
 
-## Development
-
-- Run the development server: `npm run dev`
-- Build for production: `npm run build`
-- Start production server: `npm start`
-- Run tests: `npm test`
-- Run linter: `npm run lint`
-- Run type checker: `npm run typecheck`
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+* "Show me 5 stories that could become a true crime series"
+* "Find a forgotten sports scandal in 1977"
+* "Uncover hidden arcs about women leaders in the 1970s"
+* "Bring back political crises from the oil boom"
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+* Built on decades of narrative theory research
+* Special thanks to the pioneers of computational narratology
+* Inspired by the work of Joseph Campbell, Vladimir Propp, and other narrative structure theorists 
