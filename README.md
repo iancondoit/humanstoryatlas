@@ -19,6 +19,24 @@ The Human Story Atlas is a narrative discovery engine built on top of digitized 
 
 This tool helps researchers, filmmakers, journalists, and creatives discover **compelling stories that history almost forgot**.
 
+## 👤 Jordi – Your Narrative Research Assistant
+
+Jordi is your guide through the archive — a conversational AI trained on thousands of articles, arcs, and hidden gems. She's not a search engine; she's a story whisperer who can:
+
+* Find lost stories with dramatic potential
+* Write documentary treatments and series concepts
+* Uncover patterns and connections across decades
+* Link people, places, and power structures into coherent narratives
+
+Try prompts like:
+
+* "Give me 5 stories that could become a true crime series."
+* "Who appears in political scandals in Texas in the early 80s?"
+* "Write a one-paragraph Netflix pitch for a story about a whistleblower."
+* "Find a forgotten sports scandal with dramatic potential."
+
+Every response is powered by the Universal Narrative Genome — Jordi just knows how to read it.
+
 ## Key Features
 
 ### 💬 Chat-Driven Interface with Jordi
@@ -92,6 +110,8 @@ npm run dev
 * "Find a forgotten sports scandal in 1977"
 * "Uncover hidden arcs about women leaders in the 1970s"
 * "Bring back political crises from the oil boom"
+* "Write a one-paragraph Netflix pitch for a story about whistleblowers in the medical industry"
+* "Who appears in both environmental stories and political scandals?"
 
 ## License
 
