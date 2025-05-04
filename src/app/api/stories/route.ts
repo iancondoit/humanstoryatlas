@@ -96,6 +96,15 @@ async function createSearchEmbedding(query: string) {
   }
 }
 
+// Helper function to serialize BigInt data
+function serializeData(data: any): any {
+  return JSON.parse(
+    JSON.stringify(data, (_, value) => 
+      typeof value === 'bigint' ? Number(value) : value
+    )
+  );
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('query') || '';
@@ -132,14 +141,27 @@ export async function GET(request: Request) {
     
     // Search by text query
     if (query) {
-      where.OR = [
-        { title: { contains: query, mode: 'insensitive' } },
-        { processedText: { contains: query, mode: 'insensitive' } },
-      ];
+      // Determine database type from Prisma client
+      const databaseType = prisma._engineConfig.activeProvider;
+
+      // Apply appropriate search strategy based on database
+      if (databaseType === 'sqlite') {
+        // SQLite approach (no mode parameter)
+        where.OR = [
+          { title: { contains: query } },
+          { processedText: { contains: query } }
+        ];
+      } else {
+        // PostgreSQL and others that support mode
+        where.OR = [
+          { title: { contains: query, mode: 'insensitive' } },
+          { processedText: { contains: query, mode: 'insensitive' } }
+        ];
+      }
     }
     
     // Count total stories to verify if we have any data
-    const totalStories = await prisma.story.count();
+    const totalStories = Number(await prisma.story.count());
     let stories;
     
     // Fetch stories from the database
@@ -151,6 +173,9 @@ export async function GET(request: Request) {
           timestamp: 'desc',
         },
       });
+      
+      // Serialize stories to handle BigInt values
+      stories = serializeData(stories);
     } else {
       console.log('No stories in database, using fallback data');
       // If database is empty, return fallback data
@@ -172,7 +197,7 @@ export async function GET(request: Request) {
     }
     
     // Map the stories to a more API-friendly format
-    const formattedStories = stories.map(story => ({
+    const formattedStories = stories.map((story: any) => ({
       id: story.id,
       title: story.title,
       publication: story.sourceType,
