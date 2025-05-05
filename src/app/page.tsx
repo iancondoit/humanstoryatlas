@@ -7,6 +7,7 @@ import ExamplePrompts from '@/components/ExamplePrompts';
 import GenomeStats from '@/components/GenomeStats';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import NLQueryResponse from '@/components/NLQueryResponse';
+import DiscoveryPanel from '@/components/DiscoveryPanel';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { fetchStories, type SearchResults } from '@/lib/api';
 
@@ -39,6 +40,7 @@ export default function Home() {
   });
   const [results, setResults] = useState<SearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeView, setActiveView] = useState<'search' | 'discover'>('discover'); // Default to discover view
 
   const handlePromptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPrompt(e.target.value);
@@ -61,6 +63,7 @@ export default function Home() {
     
     setIsLoading(true);
     setSubmittedPrompt(searchPrompt); // Store the submitted prompt for NLQueryResponse
+    setActiveView('search'); // Switch to search view
     
     try {
       // Use the API client to fetch real data from the backend
@@ -87,9 +90,29 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <Globe className="h-6 w-6 text-blue-500" />
           <h1 className="text-2xl font-bold text-white">Human Story Atlas 🧬</h1>
-          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v1.6.0</span>
+          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v1.7.0</span>
         </div>
         <div className="flex items-center gap-4">
+          {/* View Toggle */}
+          <div className="hidden md:flex bg-neutral-800 rounded-lg p-0.5">
+            <button 
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'discover' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'}`}
+              onClick={() => setActiveView('discover')}
+            >
+              Explore
+            </button>
+            <button 
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'search' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'}`}
+              onClick={() => {
+                setActiveView('search');
+                if (results) return; // Don't clear results if we have them
+                handleSearch();
+              }}
+            >
+              Search
+            </button>
+          </div>
+          
           {/* Compact GenomeStats in header */}
           <div className="hidden lg:block">
             <GenomeStats compact={true} />
@@ -133,26 +156,61 @@ export default function Home() {
           </div>
         </div>
         
-        {/* Natural Language Explanation */}
-        {results && (
-          <NLQueryResponse 
-            query={submittedPrompt}
-            stories={results?.stories || []}
-            arcs={results?.arcs || []}
-            isLoading={isLoading}
-          />
-        )}
-        
-        {/* Example Prompts */}
-        <ExamplePrompts onPromptSelect={handlePromptSelect} />
-        
-        {/* Mobile GenomeStats */}
-        <div className="lg:hidden">
-          <GenomeStats />
+        {/* Mobile View Toggle */}
+        <div className="md:hidden flex bg-neutral-800 rounded-lg p-0.5 mx-auto w-fit">
+          <button 
+            className={`px-4 py-2 text-sm rounded-md transition-colors ${activeView === 'discover' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'}`}
+            onClick={() => setActiveView('discover')}
+          >
+            Explore
+          </button>
+          <button 
+            className={`px-4 py-2 text-sm rounded-md transition-colors ${activeView === 'search' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'}`}
+            onClick={() => {
+              setActiveView('search');
+              if (results) return; // Don't clear results if we have them
+              handleSearch();
+            }}
+          >
+            Search
+          </button>
         </div>
         
-        {/* Results Area */}
-        <ResultsDisplay results={results} />
+        {/* Content Area - Discovery or Search Results */}
+        {activeView === 'discover' ? (
+          /* Discovery Panel View */
+          <>
+            <DiscoveryPanel 
+              source={filters.publication} 
+              startDate={filters.startDate} 
+              endDate={filters.endDate} 
+            />
+          </>
+        ) : (
+          /* Search Results View */
+          <div className="space-y-6">
+            {/* Natural Language Explanation */}
+            {results && (
+              <NLQueryResponse 
+                query={submittedPrompt}
+                stories={results?.stories || []}
+                arcs={results?.arcs || []}
+                isLoading={isLoading}
+              />
+            )}
+            
+            {/* Results Area */}
+            <ResultsDisplay results={results} />
+            
+            {/* Example Prompts */}
+            <ExamplePrompts onPromptSelect={handlePromptSelect} />
+          </div>
+        )}
+        
+        {/* Mobile GenomeStats - show in both views */}
+        <div className="mt-6 lg:hidden">
+          <GenomeStats />
+        </div>
       </main>
     </div>
   );

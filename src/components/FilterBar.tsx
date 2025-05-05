@@ -1,4 +1,7 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Calendar, Clock, RefreshCw, ArrowRight } from 'lucide-react';
 
 interface FilterBarProps {
   filters: {
@@ -10,7 +13,82 @@ interface FilterBarProps {
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange }) => {
-  const publications = ['All', 'Washington Post', 'New York Times', 'Chicago Tribune', 'Wall Street Journal', 'CBS News'];
+  const [publications, setPublications] = useState<string[]>(['All']);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDateRangeLoading, setIsDateRangeLoading] = useState(false);
+  const prevPublicationRef = useRef<string>('');
+  
+  // Fetch all available publications
+  useEffect(() => {
+    const fetchPublications = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/publications');
+        if (!response.ok) {
+          throw new Error('Failed to fetch publications');
+        }
+        
+        const data = await response.json();
+        if (data.publications && Array.isArray(data.publications)) {
+          // Make sure 'All' is the first option
+          setPublications(['All', ...data.publications]);
+        }
+      } catch (error) {
+        console.error('Error fetching publications:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchPublications();
+  }, []);
+  
+  // Fetch date range when publication changes
+  useEffect(() => {
+    // Skip if 'All' is selected or no publication is selected
+    if (!filters.publication || filters.publication.toLowerCase() === 'all') {
+      return;
+    }
+    
+    // Skip if publication hasn't changed
+    if (prevPublicationRef.current === filters.publication) {
+      return;
+    }
+    
+    // Update ref with current publication
+    prevPublicationRef.current = filters.publication;
+    
+    const fetchDateRange = async () => {
+      setIsDateRangeLoading(true);
+      try {
+        const response = await fetch(`/api/publication-timerange?source=${encodeURIComponent(filters.publication)}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch date range');
+        }
+        
+        const data = await response.json();
+        
+        // Only update if we got valid dates
+        if (data.startDate && data.endDate) {
+          onFilterChange('startDate', data.startDate);
+          onFilterChange('endDate', data.endDate);
+        }
+      } catch (error) {
+        console.error('Error fetching date range:', error);
+      } finally {
+        setIsDateRangeLoading(false);
+      }
+    };
+    
+    fetchDateRange();
+  }, [filters.publication, onFilterChange]);
+  
+  // Handle publication change
+  const handlePublicationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    onFilterChange('publication', value);
+  };
   
   return (
     <div className="flex flex-wrap gap-4 items-center bg-neutral-800/30 p-4 rounded-lg shadow-sm">
@@ -20,42 +98,69 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange }) => {
         </label>
         <select 
           id="publication" 
-          className="bg-neutral-700 text-white rounded-md px-3 py-1.5 text-sm border border-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="bg-neutral-700 text-white rounded-md px-3 py-1.5 text-sm border border-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500 min-w-40"
           value={filters.publication}
-          onChange={(e) => onFilterChange('publication', e.target.value)}
+          onChange={handlePublicationChange}
+          disabled={isLoading}
         >
-          {publications.map(pub => (
-            <option key={pub} value={pub.toLowerCase() === 'all' ? '' : pub}>
-              {pub}
-            </option>
-          ))}
+          {isLoading ? (
+            <option>Loading...</option>
+          ) : (
+            publications.map(pub => (
+              <option key={pub} value={pub.toLowerCase() === 'all' ? '' : pub}>
+                {pub}
+              </option>
+            ))
+          )}
         </select>
       </div>
       
-      <div>
-        <label htmlFor="startDate" className="block text-sm font-medium mb-1 text-neutral-300">
-          From
-        </label>
-        <input 
-          type="date" 
-          id="startDate"
-          className="bg-neutral-700 text-white rounded-md px-3 py-1.5 text-sm border border-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          value={filters.startDate}
-          onChange={(e) => onFilterChange('startDate', e.target.value)}
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="endDate" className="block text-sm font-medium mb-1 text-neutral-300">
-          To
-        </label>
-        <input 
-          type="date" 
-          id="endDate"
-          className="bg-neutral-700 text-white rounded-md px-3 py-1.5 text-sm border border-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          value={filters.endDate}
-          onChange={(e) => onFilterChange('endDate', e.target.value)}
-        />
+      <div className="flex items-center gap-2">
+        <div>
+          <label htmlFor="startDate" className="block text-sm font-medium mb-1 text-neutral-300 flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-blue-400" />
+            From
+          </label>
+          <div className="relative">
+            <input 
+              type="date" 
+              id="startDate"
+              className={`bg-neutral-700 text-white rounded-md px-3 py-1.5 text-sm border border-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDateRangeLoading ? 'opacity-50' : ''}`}
+              value={filters.startDate}
+              onChange={(e) => onFilterChange('startDate', e.target.value)}
+              disabled={isDateRangeLoading}
+            />
+            {isDateRangeLoading && (
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <RefreshCw className="h-3.5 w-3.5 text-blue-400 animate-spin" />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <ArrowRight className="h-3.5 w-3.5 text-neutral-500 mt-6" />
+        
+        <div>
+          <label htmlFor="endDate" className="block text-sm font-medium mb-1 text-neutral-300 flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-blue-400" />
+            To
+          </label>
+          <div className="relative">
+            <input 
+              type="date" 
+              id="endDate"
+              className={`bg-neutral-700 text-white rounded-md px-3 py-1.5 text-sm border border-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDateRangeLoading ? 'opacity-50' : ''}`}
+              value={filters.endDate}
+              onChange={(e) => onFilterChange('endDate', e.target.value)}
+              disabled={isDateRangeLoading}
+            />
+            {isDateRangeLoading && (
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <RefreshCw className="h-3.5 w-3.5 text-blue-400 animate-spin" />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

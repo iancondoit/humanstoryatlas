@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2024-11-15
+
+### Added
+- New discovery summary API endpoint for contextual overviews of stories
+- DiscoveryPanel component to visualize entity data, themes, and notable stories
+- Publications API endpoint to fetch available publication sources
+
+### Changed
+- Updated UI to feature Explore mode as the default view
+- Removed example prompts section from Explore tab for cleaner interface
+- Improved filtering capabilities with dynamic publication dropdown
+
+### Fixed
+- Fixed publication dropdown to correctly show "San Antonio Express-News"
+- Enhanced error handling in discovery and publications APIs
+
 ## [1.6.0] - 2024-11-08
 
 ### Added
