@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [1.6.0] - 2024-11-08
 
+### Added
+- Improved error handling in API routes
+- Better database integration with real StoryDredge data
+
 ### Changed
 - Updated version number for new release
 - Merged all changes from main branch
+
+### Fixed
+- Fixed stories API to properly use real database data instead of fallback mock data
+- Improved API response formatting for consistent frontend display
 
 ## [1.5.0] - 2024-05-04
 

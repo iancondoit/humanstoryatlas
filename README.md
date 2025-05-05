@@ -1,4 +1,4 @@
-# 🧬 Human Story Atlas (v1.0.0)
+# 🧬 Human Story Atlas (v1.6.0)
 
 An interactive scientific exploration of narrative connections across human experience. Human Story Atlas is a powerful tool for discovering hidden narrative arcs and forgotten stories through a chat-driven interface.
 
@@ -132,4 +132,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 * Built on decades of narrative theory research
 * Special thanks to the pioneers of computational narratology
-* Inspired by the work of Joseph Campbell, Vladimir Propp, and other narrative structure theorists 
+* Inspired by the work of Joseph Campbell, Vladimir Propp, and other narrative structure theorists
+
+## Recent Updates (v1.6.0)
+
+### 🔄 Real Data Integration
+- Fixed API routes to properly use real StoryDredge data instead of fallback mock data
+- Improved error handling in API responses
+- Enhanced database integration with 244 real stories from 1970-1977
+- Better data formatting for consistent frontend display
+
+### 🧪 Verification Tools
+- Added verification scripts to ensure API is using real data
+- Added automated tests for database integration
+- Improved error reporting and debugging 

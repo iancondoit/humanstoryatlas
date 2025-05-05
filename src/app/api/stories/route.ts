@@ -112,122 +112,182 @@ export async function GET(request: Request) {
   const startDate = searchParams.get('startDate') || '';
   const endDate = searchParams.get('endDate') || '';
   const limit = Number(searchParams.get('limit') || '10');
+  const debug = searchParams.get('debug') === 'true';
 
   try {
-    // Build the filter conditions
-    const where: any = {};
-    
-    // Add publication filter if provided
-    if (publication) {
-      where.sourceType = {
-        contains: publication,
-      };
-    }
-    
-    // Add date range filters if provided
-    if (startDate) {
-      where.timestamp = {
-        ...where.timestamp,
-        gte: new Date(startDate),
-      };
-    }
-    
-    if (endDate) {
-      where.timestamp = {
-        ...where.timestamp,
-        lte: new Date(endDate),
-      };
-    }
-    
-    // Search by text query
-    if (query) {
-      // Determine database type from Prisma client
-      const databaseType = prisma._engineConfig.activeProvider;
-
-      // Apply appropriate search strategy based on database
-      if (databaseType === 'sqlite') {
-        // SQLite approach (no mode parameter)
-        where.OR = [
-          { title: { contains: query } },
-          { processedText: { contains: query } }
-        ];
-      } else {
-        // PostgreSQL and others that support mode
-        where.OR = [
-          { title: { contains: query, mode: 'insensitive' } },
-          { processedText: { contains: query, mode: 'insensitive' } }
-        ];
-      }
-    }
-    
     // Count total stories to verify if we have any data
-    const totalStories = Number(await prisma.story.count());
-    let stories;
+    const totalStories = await prisma.story.count();
     
-    // Fetch stories from the database
-    if (totalStories > 0) {
-      stories = await prisma.story.findMany({
-        where,
-        take: limit,
-        orderBy: {
-          timestamp: 'desc',
-        },
+    if (debug) {
+      console.log(`Total stories in database: ${totalStories}`);
+    }
+    
+    // Only use fallback if database is completely empty
+    if (totalStories === 0) {
+      if (debug) {
+        console.log('No stories in database, using fallback data');
+      }
+      return NextResponse.json({
+        stories: getRelevantFallbackStories(query),
+        arcs: getRelevantFallbackArcs(query),
+        suggestedFollowups: generateFollowupSuggestions(query, fallbackStories),
+        usedFallback: true,
+        reason: 'No stories in database'
       });
+    }
+    
+    let stories = [];
+    
+    try {
+      if (query) {
+        // Using a simpler raw SQL query with tagged template literals
+        // This avoids potential issues with manual parameter construction
+        const searchTerm = `%${query.toLowerCase()}%`;
+        
+        const rawResults = await prisma.$queryRaw`
+          SELECT * FROM Story 
+          WHERE LOWER(title) LIKE ${searchTerm}
+             OR LOWER(processedText) LIKE ${searchTerm}
+        `;
+        
+        // Ensure we have an array
+        stories = Array.isArray(rawResults) ? rawResults : [];
+        
+        // Apply filters for publication and dates
+        if (publication) {
+          stories = stories.filter((story: any) => 
+            story.sourceType.toLowerCase().includes(publication.toLowerCase())
+          );
+        }
+        
+        if (startDate) {
+          const startDateObj = new Date(startDate);
+          stories = stories.filter((story: any) => 
+            new Date(story.timestamp) >= startDateObj
+          );
+        }
+        
+        if (endDate) {
+          const endDateObj = new Date(endDate);
+          stories = stories.filter((story: any) => 
+            new Date(story.timestamp) <= endDateObj
+          );
+        }
+        
+        // Sort and limit
+        stories = stories
+          .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .slice(0, limit);
+      } else {
+        // If no search query, use standard Prisma query
+        const where: any = {};
+        
+        // Add publication filter if provided
+        if (publication) {
+          where.sourceType = {
+            contains: publication,
+          };
+        }
+        
+        // Add date range filters if provided
+        if (startDate) {
+          where.timestamp = {
+            ...where.timestamp,
+            gte: new Date(startDate),
+          };
+        }
+        
+        if (endDate) {
+          where.timestamp = {
+            ...where.timestamp,
+            lte: new Date(endDate),
+          };
+        }
+        
+        stories = await prisma.story.findMany({
+          where,
+          take: limit,
+          orderBy: {
+            timestamp: 'desc',
+          },
+        });
+      }
       
       // Serialize stories to handle BigInt values
       stories = serializeData(stories);
-    } else {
-      console.log('No stories in database, using fallback data');
-      // If database is empty, return fallback data
+      
+      if (debug) {
+        console.log(`Query "${query}" returned ${stories.length} results`);
+      }
+    } catch (error) {
+      console.error('Database query error:', error);
+      // Only use fallback if database query fails
       return NextResponse.json({
         stories: getRelevantFallbackStories(query),
         arcs: getRelevantFallbackArcs(query),
         suggestedFollowups: generateFollowupSuggestions(query, fallbackStories),
+        usedFallback: true,
+        reason: 'Database query error',
+        error: error instanceof Error ? error.message : String(error)
       });
     }
     
-    // If no results from database query, return fallback data
+    // Return empty result set instead of fallback if query returns no results
+    // This makes it clear to the frontend that there are genuinely no matches
     if (stories.length === 0) {
-      console.log('No results found for query, using fallback data');
+      if (debug) {
+        console.log(`No results found for query "${query}", returning empty set`);
+      }
       return NextResponse.json({
-        stories: getRelevantFallbackStories(query),
-        arcs: getRelevantFallbackArcs(query),
-        suggestedFollowups: generateFollowupSuggestions(query, fallbackStories),
+        stories: [],
+        arcs: [],
+        suggestedFollowups: generateFollowupSuggestions(query, []),
+        usedFallback: false,
+        reason: 'No results found for query'
       });
     }
     
-    // Map the stories to a more API-friendly format
+    // Transform stories to include relevance and formatting
     const formattedStories = stories.map((story: any) => ({
       id: story.id,
       title: story.title,
       publication: story.sourceType,
-      date: story.timestamp.toISOString().split('T')[0],
-      snippet: story.processedText.substring(0, 200) + '...',
-      relevanceScore: 0.9, // Placeholder until we implement vector search
+      date: story.timestamp.substring(0, 10),
+      snippet: truncateText(story.processedText, 200),
+      relevanceScore: 0.9, // Default score since we don't have real vector search yet
+      storyType: determineStoryType(query),
     }));
     
-    // Generate narrative arcs based on stories
+    // Generate narrative arcs for the found stories
     const arcs = generateMockArcs(formattedStories, query);
     
-    // Generate follow-up suggestions based on the query
-    const suggestedFollowups = generateFollowupSuggestions(query, formattedStories);
+    // Generate follow-up suggestions
+    const followups = generateFollowupSuggestions(query, formattedStories);
     
     return NextResponse.json({
       stories: formattedStories,
       arcs,
-      suggestedFollowups,
+      suggestedFollowups: followups,
+      usedFallback: false
     });
   } catch (error) {
-    console.error('Error fetching stories:', error);
-    
-    // Return fallback data on error
+    console.error('API error:', error);
     return NextResponse.json({
       stories: getRelevantFallbackStories(query),
       arcs: getRelevantFallbackArcs(query),
       suggestedFollowups: generateFollowupSuggestions(query, fallbackStories),
-      error: 'Database error - showing fallback results',
+      usedFallback: true,
+      reason: 'API error',
+      error: error instanceof Error ? error.message : String(error)
     });
   }
+}
+
+// Helper function to truncate text
+function truncateText(text: string, maxLength: number): string {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
 }
 
 // Helper function to get relevant fallback stories based on query
