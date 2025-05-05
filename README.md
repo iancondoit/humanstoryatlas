@@ -2,6 +2,10 @@
 
 An interactive scientific exploration of narrative connections across human experience. Human Story Atlas is a powerful tool for discovering hidden narrative arcs and forgotten stories through a chat-driven interface.
 
+## Purpose
+
+Human Story Atlas is a generative archive exploration interface designed to uncover forgotten storylines and narrative connections in historical news data. It goes beyond traditional search by surfacing narrative potential, story arcs, and thematic connections that span across time and publications.
+
 ## About the Project
 
 Human Story Atlas is built on the Universal Narrative Genome - a structured scientific decoding of story patterns across time, culture, and genre. It allows users to explore vast collections of stories and uncover hidden connections using natural language queries.
@@ -145,4 +149,43 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### 🧪 Verification Tools
 - Added verification scripts to ensure API is using real data
 - Added automated tests for database integration
-- Improved error reporting and debugging 
+- Improved error reporting and debugging
+
+### 📊 Phase 2: Enhanced Backend Transparency
+- Added detailed metrics display showing:
+  - Total stories indexed
+  - Named entities extracted
+  - Narrative arcs generated
+  - Date range coverage
+  - Last data ingest timestamps
+- Enhanced tooltips explaining each metric and its significance
+- Improved stats API with comprehensive database information
+
+## Data Pipeline
+
+Human Story Atlas uses a data pipeline with the following components:
+
+1. **StoryDredge**: Processes raw news articles through OCR and NLP to prepare them for narrative analysis
+2. **Database**: Stores stories, entities, and arcs in a structured format with Prisma ORM
+3. **Vector Storage**: (Future) Will enable semantic search and narrative pattern matching
+4. **Jordi**: An AI guide that uses the processed data to generate narratives and insights
+
+### Data Flow
+```
+Raw News Sources → StoryDredge Pipeline → HSA Database → Human Story Atlas UI → Jordi Insights
+```
+
+## System Requirements
+
+- **Node.js**: v18+
+- **Database**: SQLite (development), PostgreSQL (production)
+- **API Keys**: OpenAI API key for Jordi's generation capabilities
+- **Storage**: Minimum 1GB for development, 10GB+ for production with complete archive
+
+## Roadmap
+
+- ✅ **Phase 1**: Real data ingestion and basic search
+- ✓ **Phase 2**: UI transparency and backend metrics
+- 🔄 **Phase 3**: Codebase cleanup and optimization
+- 🔜 **Phase 4**: Enhanced Jordi capabilities for narrative synthesis
+- 📝 **Phase 5**: Full generative documentary treatment creation 
