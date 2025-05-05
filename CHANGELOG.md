@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2024-11-17
+
+### Added
+- New Query Pane feature that slides in when users click on entities, keywords, or themes
+- Contextual search interface that allows users to refine and combine filters
+- FilterChip component for displaying filter elements with appropriate icons
+- Query building utilities for constructing search parameters
+- Timeline preview placeholder in Query Pane
+- Interactive elements in Discovery Panel to open Query Pane with pre-filled filters
+- Animated transitions for smooth user experience
+
+## [1.7.2] - 2024-11-15
+
+### Fixed
+- Added catch-all route handler to properly manage 404 pages
+- Created fallback mechanism for API endpoints with multiple layers of redundancy
+- Added Vercel configuration file for improved routing and fallback behavior 
+- Enhanced error handling in FilterBar component
+
+## [1.7.1] - 2024-11-15
+
+### Fixed
+- Fixed API routes issue causing "Failed to fetch publications" error
+- Added fallback mechanism for publications endpoint
+- Improved error handling for API failure scenarios
+
 ## [1.7.0] - 2024-11-15
 
 ### Added

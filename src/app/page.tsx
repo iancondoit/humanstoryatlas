@@ -83,6 +83,28 @@ export default function Home() {
     }
   };
 
+  // Handler for when a query is run from the QueryPane
+  const handleQueryResults = (queryResults: SearchResults) => {
+    if (queryResults) {
+      setResults(queryResults);
+      
+      // Generate a descriptive prompt based on the query
+      const generatePrompt = () => {
+        if (queryResults.stories && queryResults.stories.length > 0) {
+          if (queryResults.stories.length === 1) {
+            return `Found a story about ${queryResults.stories[0].title}`;
+          } else {
+            return `Found ${queryResults.stories.length} stories related to your query`;
+          }
+        }
+        return 'Search results';
+      };
+      
+      setSubmittedPrompt(generatePrompt());
+      setActiveView('search'); // Switch to search view to display results
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0d1117]">
       {/* Header with logo and title */}
@@ -90,7 +112,7 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <Globe className="h-6 w-6 text-blue-500" />
           <h1 className="text-2xl font-bold text-white">Human Story Atlas 🧬</h1>
-          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v1.7.0</span>
+          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v2.0.0</span>
         </div>
         <div className="flex items-center gap-4">
           {/* View Toggle */}
@@ -184,6 +206,7 @@ export default function Home() {
               source={filters.publication} 
               startDate={filters.startDate} 
               endDate={filters.endDate} 
+              onQueryResults={handleQueryResults}
             />
           </>
         ) : (
