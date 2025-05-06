@@ -8,7 +8,7 @@ export default function NotFound() {
         <header className="mb-8 flex items-center justify-center">
           <Globe className="h-10 w-10 text-blue-500 mr-2" />
           <h1 className="text-3xl font-bold text-white">Human Story Atlas 🧬</h1>
-          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v2.1.0</span>
+          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v2.1.1</span>
         </header>
         
         <div className="bg-neutral-800/50 rounded-xl p-8 border border-neutral-700/50">

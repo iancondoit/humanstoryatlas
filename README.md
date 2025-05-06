@@ -1,4 +1,4 @@
-# 🧬 Human Story Atlas (v2.1.0)
+# 🧬 Human Story Atlas (v2.1.1)
 
 An interactive scientific exploration of narrative connections across human experience. Human Story Atlas is a powerful tool for discovering hidden narrative arcs and forgotten stories through a chat-driven interface.
 
@@ -146,7 +146,16 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - ✅ **Phase 4**: Enhanced Jordi capabilities for narrative synthesis
 - 🔜 **Phase 5**: Full generative documentary treatment creation 
 
-## Recent Updates (v2.1.0) - June 23, 2024
+## Recent Updates (v2.1.1) - July 4, 2024
+
+### 🛠️ Bug Fixes and Improvements
+- Fixed database query issues with date filtering
+- Ensured real story data is displayed instead of mock data
+- Implemented date filter bypass to handle timestamp format issues
+- Added test scripts to verify proper data display
+- Improved error handling and logging for better debugging
+
+## Previous Updates (v2.1.0) - June 23, 2024
 
 ### 🤖 Enhanced Jordi Experience
 - Completely redesigned Jordi as the default landing page

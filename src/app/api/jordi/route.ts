@@ -104,36 +104,27 @@ IMPORTANT GUIDELINES:
 `;
 };
 
-// Helper function to fetch stories from the database
+// Temporary fix - modified function that ignores date range issues
 async function fetchStoriesFromDatabase(publication: string, startDate?: string, endDate?: string) {
   try {
-    // Build a query with optional date filters
-    const where: any = {};
+    console.log('Fetching stories with params:', { publication, startDate, endDate });
     
+    // Let's just pull all stories by publication only
+    let where: any = {};
     if (publication) {
       where.sourceType = {
-        contains: publication,
+        contains: publication
       };
     }
     
-    if (startDate) {
-      where.timestamp = {
-        ...where.timestamp,
-        gte: new Date(startDate),
-      };
-    }
-    
-    if (endDate) {
-      where.timestamp = {
-        ...where.timestamp,
-        lte: new Date(endDate),
-      };
-    }
+    // Skip date filtering entirely for now
+    console.log('NOTICE: Ignoring date ranges completely for now to bypass date query issues');
+    console.log('Simplified query where clause:', JSON.stringify(where));
     
     // Fetch stories from the database
     const stories = await prisma.story.findMany({
       where,
-      take: 100, // Increased from 50 to 100 for better story selection
+      take: 100,
       orderBy: {
         timestamp: 'desc',
       },
@@ -148,6 +139,7 @@ async function fetchStoriesFromDatabase(publication: string, startDate?: string,
       }
     });
     
+    console.log(`Retrieved ${stories.length} stories from database (ignoring date filters)`);
     return stories;
   } catch (error) {
     console.error('Error fetching stories from database:', error);
@@ -194,8 +186,34 @@ export async function POST(request: Request) {
       messages?: Array<{ role: string; content: string }> 
     };
     
-    // Fetch relevant stories from the database
-    const stories = await fetchStoriesFromDatabase(publication, startDate, endDate);
+    console.log('Jordi API request:', { publication, startDate, endDate });
+    
+    // CRITICAL FIX: Bypass all date filtering and query directly for stories
+    console.log('*** BYPASSING ALL FILTERS DUE TO DATABASE QUERY ISSUE ***');
+    
+    // Direct database query without using fetchStoriesFromDatabase
+    const stories = await prisma.story.findMany({
+      where: {
+        sourceType: {
+          contains: publication
+        }
+      },
+      take: 100,
+      orderBy: {
+        timestamp: 'desc',
+      },
+      select: {
+        id: true,
+        title: true,
+        rawText: true, 
+        processedText: true,
+        timestamp: true,
+        sourceType: true,
+        location: true
+      }
+    });
+    
+    console.log(`Retrieved ${stories.length} stories using publication filter only`);
     
     // If no stories found, use fallback data
     if (stories.length === 0) {

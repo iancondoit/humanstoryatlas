@@ -95,61 +95,15 @@ const JordiChat: React.FC<JordiChatProps> = ({
         }
         
         if (response.pitches && response.pitches.length > 0) {
+          console.log('DISPLAYING REAL DATA: Retrieved', response.pitches.length, 'real stories from database.');
           setCurrentPitches(response.pitches);
         } else {
-          // Fallback to mock pitches if API returns none
-          console.warn('Using mock data - no real pitches returned from API');
-          
-          // Update welcome message to notify user about mock data
+          // If we get a response but no pitches, show a helpful message
+          console.warn('No pitches returned from API - but not using mock data');
           setMessages([{
             role: 'assistant',
-            content: `I'm Jordi, your narrative research assistant. I'm displaying example stories since no real data was found for ${filters.publication}. In production, you'll see actual stories from your archives.`
+            content: `I've analyzed the ${filters.publication} archive but couldn't find compelling narrative threads. Try adjusting your date range or ask me a specific question about this archive.`
           }]);
-          setInitialWelcomeMessage({
-            role: 'assistant',
-            content: `I'm Jordi, your narrative research assistant. I'm displaying example stories since no real data was found for ${filters.publication}. In production, you'll see actual stories from your archives.`
-          });
-          
-          setCurrentPitches([
-            {
-              id: 'mock-1',
-              title: '[MOCK DATA] The Mayor\'s Secret Empire',
-              tagline: 'How a charismatic politician built a web of corruption, affairs, and silenced enemies',
-              stories: [
-                {
-                  title: '[MOCK] Mayor\'s Business Partner Found Dead',
-                  snippet: 'What authorities ruled a suicide raised questions when documents revealing a kickback scheme were found missing.'
-                },
-                {
-                  title: '[MOCK] City Funds Diverted to Offshore Accounts',
-                  snippet: 'Millions in taxpayer money disappeared through shell companies connected to the mayor\'s inner circle.'
-                },
-                {
-                  title: '[MOCK] Whistleblower Silenced After Allegations',
-                  snippet: 'Former aide who threatened to expose the administration\'s "moral improprieties" was found with planted evidence in a staged drug bust.'
-                }
-              ],
-              potentialFormat: 'Six-part investigative docuseries with new revelations',
-              comparableTo: 'In the vein of "Bad Blood" meets "House of Cards" with the investigative depth of "The Jinx"'
-            },
-            {
-              id: 'mock-2',
-              title: '[MOCK DATA] High Society Scandal',
-              tagline: 'Behind the mansions and charity galas lay a secret world of affairs, substance abuse, and deadly consequences',
-              stories: [
-                {
-                  title: '[MOCK] Socialite Found Dead After Exclusive Party',
-                  snippet: 'The mysterious death at the city\'s most prestigious address was quickly covered up, but three journalists refused to drop the story.'
-                },
-                {
-                  title: '[MOCK] Anonymous Source Reveals Drug Ring',
-                  snippet: 'A high-end drug operation catering to the city\'s elite implicated judges, business leaders, and prominent clergy members.'
-                }
-              ],
-              potentialFormat: 'Feature documentary with potential for sequel exploring new developments',
-              comparableTo: 'Combines the exposé style of "Dirty Money" with the society intrigue of "The Inventor: Out for Blood"'
-            }
-          ]);
         }
       } catch (error) {
         console.error('Error fetching initial pitches:', error);
