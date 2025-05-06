@@ -1,0 +1,50 @@
+{
+  "stories": [
+    {
+      "id": "8d00bf86-17af-448c-adf4-8070a2f66f2d",
+      "title": "TEXAS vs. CHICAGO Baseball Game Summary",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "The Texas baseball team played against Chicago in an intense game. Hargrove and Banister showed great performance, while Lemon and Gamble struggled. The final score was Texas 6, Chicago 10....",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "8c1d627d-14c9-4981-9c37-464e6664933f",
+      "title": "Boston vs. Philadelphia Baseball Game",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "ob r h bi\n' ■? Burlson\n5 o o o Lynn\n3 1 1 1 Rice rf\n4 o o o Yostrki ct\n4 14 o- R M IIr\n4 I I\nI Fisk\n4 2 2\n1 GSC oft\n4 12 3 Hobson\n4 o 1 o E van s\nDoyle 37 6 ll 4 Total ss lb\n3b rf\n2b ab r h bi ss S I ...",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "02002d69-ba6e-4ed0-b55c-d0e123395131",
+      "title": "Tommy Seiquer, Bull Romo vs Siegfried Stank",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "Pro Baseball: San Antonio Dodgers at El Paso. David Von Erich vs Gene Lewis. Amateur Baseball. Stole TAAF playoffs. Spencer Field and Pittman Sullivan Park. Bowling AVT 189 tourney finals in Goliad. T...",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "bb676232-b2f4-45a5-a2cc-34b76dcd8785",
+      "title": "Yanks Post 4-3 Win Over Texas",
+      "publication": "San Antonio Express-News",
+      "date": "1974-04-27",
+      "snippet": "McCULlOUGH \n\n j*Q|« rC \n'H* \nSon Antenk tXUKS-NfeWS-Snlurdey, April 2?, 1+74 \n\nYanks Post 4-3 Win Over Texas \n\nNEW YORK (AP) - Thurman Munson \n\n reached first base on an error to open the seventh inni...",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "39654b48-56ec-4408-833d-4de5e0cdd294",
+      "title": "New York vs. Cleveland Baseball Game Summary",
+      "publication": "San Antonio Express-News",
+      "date": "1974-04-14",
+      "snippet": "The New York baseball team played against Cleveland in a thrilling game. The final score was 13-9 in favor of New York. Key players such as Gross, Butner, and Wynne contributed to the victory. The gam...",
+      "relevanceScore": 0.9
+    }
+  ],
+  "arcs": [],
+  "suggestedFollowups": [
+    "Learn more about baseball",
+    "Explore related stories to baseball",
+    "See historical context for baseball"
+  ]
+}

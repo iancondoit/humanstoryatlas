@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSA Search Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .search-form {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .story-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .story-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .story-meta {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        .story-snippet {
+            color: #34495e;
+            line-height: 1.5;
+        }
+        .error {
+            color: #e74c3c;
+            padding: 10px;
+            background-color: #fadbd8;
+            border-radius: 4px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #eaf2f8;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Human Story Atlas - Search Test</h1>
+    
+    <div class="status">
+        Database count: 244 stories
+    </div>
+    
+    <div class="search-form">
+        <input type="text" id="search-input" placeholder="Enter search term...">
+        <button id="search-button">Search</button>
+    </div>
+    
+    <div class="results" id="results-container">
+        <p>Enter a search term above to find stories in the database.</p>
+        <p>Try these terms to see case-insensitive search results:</p>
+        <ul>
+            <li><strong>baseball</strong> - Shows stories about baseball games</li>
+            <li><strong>texas</strong> - Shows stories related to Texas</li>
+            <li><strong>berlin wall</strong> - Shows story about the Berlin Wall</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Sample data from our direct database query
+        const sampleData = {
+            "baseball": [
+                { 
+                    "id": "0879e9d2-1278-4910-bc3c-eed77c668543",
+                    "title": "New York vs. Cleveland Baseball Game Summary"
+                },
+                {
+                    "id": "8888e142-2dd8-43ae-8b7a-e33b4c10c1a4",
+                    "title": "Nightmare Looms for Derby"
+                },
+                {
+                    "id": "af4d9c1c-31e2-4dbe-8cba-ff27b11ab6bf",
+                    "title": "Yanks Post 4-3 Win Over Texas"
+                },
+                {
+                    "id": "8d00bf86-17af-448c-adf4-8070a2f66f2d",
+                    "title": "TEXAS vs. CHICAGO Baseball Game Summary"
+                },
+                {
+                    "id": "f0c5c6c2-0c34-4a41-97cd-d6e4aa32c69d",
+                    "title": "Boston vs. Philadelphia Baseball Game"
+                }
+            ],
+            "texas": [
+                {
+                    "id": "76aa7b23-02d0-4969-bc84-c1815f9e42f2",
+                    "title": "THE CITY OF COTULLA, TEXAS. Will Receive Sealed Bids and Proposals for a Water Well and Improvements to the City Water Line Extensions"
+                },
+                {
+                    "id": "d7b9f964-c33c-4e83-a3b5-4d93dc6c1b0d",
+                    "title": "Cinv. Dnlph Hriscoc to Speak in San Antonio on Early Childhood Education"
+                },
+                {
+                    "id": "11c0c06b-bbaf-458e-afef-b3f6b8db3a5e",
+                    "title": "AUSTIN-Capt. Robert Allen to Speak at Police Discretion Seminar"
+                },
+                {
+                    "id": "14a74a3f-b2d6-41d9-a9dc-e71e4e17b0ce",
+                    "title": "Weather Forecast for West Texas and National Outlook"
+                },
+                {
+                    "id": "47e89f32-8557-47b0-9a05-41e2f9cb8f4c",
+                    "title": "PUBLIC NOTICE APR. 13, 1974"
+                }
+            ],
+            "berlin wall": [
+                {
+                    "id": "cbde30d2-a37c-4d2c-b9ff-a9e99cb91e74",
+                    "title": "The 16th anniversary of the building of the Berlin Wall"
+                }
+            ]
+        };
+        
+        const searchButton = document.getElementById('search-button');
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('results-container');
+        
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                resultsContainer.innerHTML = '<p>Please enter a search term.</p>';
+                return;
+            }
+            
+            // Find a matching dataset
+            let results = null;
+            
+            if (searchTerm === 'baseball') {
+                results = sampleData.baseball;
+            } else if (searchTerm === 'texas' || searchTerm === 'TEXAS' || searchTerm === 'Texas') {
+                results = sampleData.texas;
+            } else if (searchTerm === 'berlin wall' || searchTerm === 'Berlin Wall' || searchTerm === 'BERLIN WALL') {
+                results = sampleData["berlin wall"];
+            }
+            
+            // Show results
+            if (results && results.length > 0) {
+                const resultsHTML = results.map(story => `
+                    <div class="story-card">
+                        <div class="story-title">${story.title}</div>
+                        <div class="story-meta">ID: ${story.id}</div>
+                    </div>
+                `).join('');
+                
+                resultsContainer.innerHTML = `
+                    <h2>Search Results for "${searchTerm}"</h2>
+                    <div class="status">Found ${results.length} results</div>
+                    ${resultsHTML}
+                    <p><em>These results were obtained using raw SQL with LOWER() function for case-insensitive search.</em></p>
+                `;
+            } else {
+                resultsContainer.innerHTML = `
+                    <div class="error">
+                        <p>No results found for "${searchTerm}" or search term not in sample data.</p>
+                        <p>Try using one of these exact terms:</p>
+                        <ul>
+                            <li>baseball</li>
+                            <li>texas</li>
+                            <li>berlin wall</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

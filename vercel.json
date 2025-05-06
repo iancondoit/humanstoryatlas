@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/api/publications", "destination": "/api/publications-backup" }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "status": 404, "dest": "/_not-found" }
+  ]
+} 

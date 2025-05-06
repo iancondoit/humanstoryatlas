@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
 /**
- * GET /api/publications
- * Returns a list of all distinct publication sources in the database
+ * GET /api/publications-backup
+ * Backup endpoint that returns a list of all distinct publication sources in the database
+ * This is used as a fallback for the main publications endpoint
  */
 export async function GET() {
   try {
@@ -23,12 +24,11 @@ export async function GET() {
     // Extract just the sourceType strings
     const publicationNames = publications.map((pub: { sourceType: string }) => pub.sourceType);
     
-    // Add debugging
-    console.log('Successfully fetched publications:', publicationNames);
+    console.log('Successfully fetched publications from backup endpoint:', publicationNames);
     
     return NextResponse.json({ publications: publicationNames });
   } catch (error) {
-    console.error('Error fetching publications:', error);
+    console.error('Error fetching publications from backup endpoint:', error);
     return NextResponse.json(
       { error: 'Failed to fetch publications' },
       { status: 500 }

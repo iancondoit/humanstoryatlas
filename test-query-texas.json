@@ -1,0 +1,50 @@
+{
+  "stories": [
+    {
+      "id": "8d00bf86-17af-448c-adf4-8070a2f66f2d",
+      "title": "TEXAS vs. CHICAGO Baseball Game Summary",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "The Texas baseball team played against Chicago in an intense game. Hargrove and Banister showed great performance, while Lemon and Gamble struggled. The final score was Texas 6, Chicago 10....",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "203791a6-40c8-4001-96fe-2ea75f74f0df",
+      "title": "Board of Trustees Meeting for Budget Adoption",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "The President of the Board of Trustees of the above named School District, pursuant to Section 23,45 of the Texas Education Code, has called a meeting of the Board of Trustees for the purpose of adopt...",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "b9d30a0b-4b06-4de1-8552-6aa673919133",
+      "title": "Owners of Major League Rodeo Franchises Hold Conference",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "Owners of the six Major League Rodeo franchises are holding their first league conference this weekend. Representing Team Texas, San Antonio's entry in the league, are President Jim Koerner and Vice P...",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "853a6ed1-cf5c-4271-b340-6f8a9cf129bd",
+      "title": "San Anton inns Mark Andersen, James Headley and Ken Cooper Named to All-State Track and Field Team",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "San Anton inns Mark Andersen, James Headley and Ken Cooper, along with Fredericksburg’s James Heimann were named to the Texas Sports Writers Association’s 1977 All-State Track and Field team. Andersen...",
+      "relevanceScore": 0.9
+    },
+    {
+      "id": "95dd48a1-f69c-4e16-a396-5af113b1d30b",
+      "title": "KINGSVILLE - Diane Pritchard named coordinator of women's athletics at Texas A&I",
+      "publication": "San Antonio Express-News",
+      "date": "1977-08-14",
+      "snippet": "Diane Pritchard has been named coordinator of women’s athletics at Texas A&I. Pritchard served as women’s basketball coach at A&I last season and will coach both basketball and volleyball this year....",
+      "relevanceScore": 0.9
+    }
+  ],
+  "arcs": [],
+  "suggestedFollowups": [
+    "Learn more about Texas",
+    "Explore related stories to Texas",
+    "See historical context for Texas"
+  ]
+}

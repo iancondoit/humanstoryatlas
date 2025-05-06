@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Database, AlertCircle, Info, Calendar, Clock, Users, Globe, Network, BookOpen } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatDate, formatTimestamp, formatDateRange } from '@/lib/utils';
 
 interface GenomeStatsProps {
   compact?: boolean;
@@ -80,41 +81,10 @@ const GenomeStats: React.FC<GenomeStatsProps> = ({ compact = false }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Format date for display
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Unknown';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  // Format timestamp for display
-  const formatTimestamp = (timestamp: string | null) => {
-    if (!timestamp) return 'Never';
-    
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   // Format date range
-  const formatDateRange = () => {
+  const formatDateRangeFromStats = () => {
     const { startDate, endDate } = stats.dateRange;
-    if (!startDate || !endDate) return 'No data available';
-    
-    const startYear = new Date(startDate).getFullYear();
-    const endYear = new Date(endDate).getFullYear();
-    
-    return `${startYear} – ${endYear}`;
+    return formatDateRange(startDate, endDate);
   };
 
   // Determine the status icon and color
@@ -214,7 +184,7 @@ const GenomeStats: React.FC<GenomeStatsProps> = ({ compact = false }) => {
         </div>
         <div className="flex items-center gap-1.5">
           <Calendar className="h-3 w-3 text-orange-400" />
-          <span className="text-sm text-neutral-400">{formatDateRange()}</span>
+          <span className="text-sm text-neutral-400">{formatDateRangeFromStats()}</span>
         </div>
       </div>
     );
@@ -303,7 +273,7 @@ const GenomeStats: React.FC<GenomeStatsProps> = ({ compact = false }) => {
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-rose-500" />
-            <p className="text-lg font-bold text-white">{formatDateRange()}</p>
+            <p className="text-lg font-bold text-white">{formatDateRangeFromStats()}</p>
           </div>
           <div className="flex justify-between text-xs text-neutral-400 mt-1">
             <span>{formatDate(stats.dateRange.startDate)}</span>

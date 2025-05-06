@@ -23,18 +23,72 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange }) => {
     const fetchPublications = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('/api/publications');
-        if (!response.ok) {
-          throw new Error('Failed to fetch publications');
+        // Try multiple endpoints in sequence until one works
+        let response;
+        let success = false;
+        
+        // Attempt 1: Try the primary API endpoint
+        try {
+          console.log('Trying primary publications endpoint...');
+          response = await fetch('/api/publications');
+          if (response.ok) {
+            success = true;
+            console.log('Primary publications endpoint succeeded');
+          } else {
+            console.log('Primary publications endpoint failed, status:', response.status);
+          }
+        } catch (e) {
+          console.error('Error with primary publications endpoint:', e);
+        }
+        
+        // Attempt 2: Try the backup API endpoint
+        if (!success) {
+          try {
+            console.log('Trying backup publications endpoint...');
+            response = await fetch('/api/publications-backup');
+            if (response.ok) {
+              success = true;
+              console.log('Backup publications endpoint succeeded');
+            } else {
+              console.log('Backup publications endpoint failed, status:', response.status);
+            }
+          } catch (e) {
+            console.error('Error with backup publications endpoint:', e);
+          }
+        }
+        
+        // Attempt 3: Try the pub-list API endpoint
+        if (!success) {
+          try {
+            console.log('Trying pub-list endpoint...');
+            response = await fetch('/api/pub-list');
+            if (response.ok) {
+              success = true;
+              console.log('Pub-list endpoint succeeded');
+            } else {
+              console.log('Pub-list endpoint failed, status:', response.status);
+            }
+          } catch (e) {
+            console.error('Error with pub-list endpoint:', e);
+          }
+        }
+        
+        // If no endpoints worked, throw an error
+        if (!success || !response) {
+          throw new Error('All publication endpoints failed');
         }
         
         const data = await response.json();
         if (data.publications && Array.isArray(data.publications)) {
           // Make sure 'All' is the first option
           setPublications(['All', ...data.publications]);
+        } else {
+          throw new Error('Invalid publications data format');
         }
       } catch (error) {
         console.error('Error fetching publications:', error);
+        // Fallback to hardcoded values as a last resort
+        setPublications(['All', 'San Antonio Express-News', 'SanAntonioExpress']);
       } finally {
         setIsLoading(false);
       }

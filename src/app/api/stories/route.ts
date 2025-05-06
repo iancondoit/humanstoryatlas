@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
+import { createSearchEmbedding, serializeData, truncateText } from '@/lib/utils';
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({
@@ -77,32 +78,79 @@ const fallbackArcs = [
   }
 ];
 
-// Helper function to create a vector embedding for search
-async function createSearchEmbedding(query: string) {
-  try {
-    const response = await openai.embeddings.create({
-      model: 'text-embedding-3-large',
-      input: query,
-      encoding_format: 'float',
-    });
-
-    if (response?.data?.[0]?.embedding) {
-      return response.data[0].embedding;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error creating search embedding:', error);
-    return null;
-  }
+/**
+ * Performs a standard text search for stories
+ */
+async function performTextSearch(searchTerm: string, filters: any, limit: number) {
+  const formattedSearchTerm = `%${searchTerm.toLowerCase()}%`;
+  
+  // Use a simpler raw SQL query with tagged template literals
+  const rawResults = await prisma.$queryRaw`
+    SELECT * FROM Story 
+    WHERE LOWER(title) LIKE ${formattedSearchTerm}
+       OR LOWER(processedText) LIKE ${formattedSearchTerm}
+  `;
+  
+  // Ensure we have an array
+  let stories = Array.isArray(rawResults) ? rawResults : [];
+  
+  // Apply filters
+  stories = applyFilters(stories, filters);
+  
+  // Sort and limit
+  stories = stories
+    .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, limit);
+    
+  return stories;
 }
 
-// Helper function to serialize BigInt data
-function serializeData(data: any): any {
-  return JSON.parse(
-    JSON.stringify(data, (_, value) => 
-      typeof value === 'bigint' ? Number(value) : value
-    )
-  );
+/**
+ * Performs a semantic vector search for stories
+ */
+async function performVectorSearch(query: string, filters: any, limit: number) {
+  // Create embedding for search
+  const embedding = await createSearchEmbedding(query);
+  
+  if (!embedding) {
+    console.error('Failed to create embedding for vector search');
+    return [];
+  }
+  
+  // Use vector search via Prisma
+  // This is a placeholder - would need to implement based on actual DB schema and capabilities
+  // Actual implementation depends on the database being used (PostgreSQL with pgvector, etc.)
+  
+  return [];
+}
+
+/**
+ * Applies publication and date filters to search results
+ */
+function applyFilters(stories: any[], filters: any) {
+  let filteredStories = [...stories];
+  
+  if (filters.publication) {
+    filteredStories = filteredStories.filter((story: any) => 
+      story.sourceType.toLowerCase().includes(filters.publication.toLowerCase())
+    );
+  }
+  
+  if (filters.startDate) {
+    const startDateObj = new Date(filters.startDate);
+    filteredStories = filteredStories.filter((story: any) => 
+      new Date(story.timestamp) >= startDateObj
+    );
+  }
+  
+  if (filters.endDate) {
+    const endDateObj = new Date(filters.endDate);
+    filteredStories = filteredStories.filter((story: any) => 
+      new Date(story.timestamp) <= endDateObj
+    );
+  }
+  
+  return filteredStories;
 }
 
 export async function GET(request: Request) {
@@ -112,7 +160,15 @@ export async function GET(request: Request) {
   const startDate = searchParams.get('startDate') || '';
   const endDate = searchParams.get('endDate') || '';
   const limit = Number(searchParams.get('limit') || '10');
+  const useVector = searchParams.get('vector') === 'true';
   const debug = searchParams.get('debug') === 'true';
+
+  // Filters object for consistency
+  const filters = {
+    publication,
+    startDate,
+    endDate
+  };
 
   try {
     // Count total stories to verify if we have any data
@@ -140,56 +196,23 @@ export async function GET(request: Request) {
     
     try {
       if (query) {
-        // Using a simpler raw SQL query with tagged template literals
-        // This avoids potential issues with manual parameter construction
-        const searchTerm = `%${query.toLowerCase()}%`;
-        
-        const rawResults = await prisma.$queryRaw`
-          SELECT * FROM Story 
-          WHERE LOWER(title) LIKE ${searchTerm}
-             OR LOWER(processedText) LIKE ${searchTerm}
-        `;
-        
-        // Ensure we have an array
-        stories = Array.isArray(rawResults) ? rawResults : [];
-        
-        // Apply filters for publication and dates
-        if (publication) {
-          stories = stories.filter((story: any) => 
-            story.sourceType.toLowerCase().includes(publication.toLowerCase())
-          );
+        // Decide between vector and text search
+        if (useVector) {
+          stories = await performVectorSearch(query, filters, limit);
+        } else {
+          stories = await performTextSearch(query, filters, limit);
         }
-        
-        if (startDate) {
-          const startDateObj = new Date(startDate);
-          stories = stories.filter((story: any) => 
-            new Date(story.timestamp) >= startDateObj
-          );
-        }
-        
-        if (endDate) {
-          const endDateObj = new Date(endDate);
-          stories = stories.filter((story: any) => 
-            new Date(story.timestamp) <= endDateObj
-          );
-        }
-        
-        // Sort and limit
-        stories = stories
-          .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-          .slice(0, limit);
       } else {
         // If no search query, use standard Prisma query
         const where: any = {};
         
-        // Add publication filter if provided
+        // Add filters to the where clause
         if (publication) {
           where.sourceType = {
             contains: publication,
           };
         }
         
-        // Add date range filters if provided
         if (startDate) {
           where.timestamp = {
             ...where.timestamp,
@@ -281,13 +304,6 @@ export async function GET(request: Request) {
       error: error instanceof Error ? error.message : String(error)
     });
   }
-}
-
-// Helper function to truncate text
-function truncateText(text: string, maxLength: number): string {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + '...';
 }
 
 // Helper function to get relevant fallback stories based on query

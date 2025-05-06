@@ -1,4 +1,4 @@
-# 🧬 Human Story Atlas (v1.6.0)
+# 🧬 Human Story Atlas (v2.1.0)
 
 An interactive scientific exploration of narrative connections across human experience. Human Story Atlas is a powerful tool for discovering hidden narrative arcs and forgotten stories through a chat-driven interface.
 
@@ -138,28 +138,36 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 * Special thanks to the pioneers of computational narratology
 * Inspired by the work of Joseph Campbell, Vladimir Propp, and other narrative structure theorists
 
-## Recent Updates (v1.6.0)
+## Roadmap
 
-### 🔄 Real Data Integration
-- Fixed API routes to properly use real StoryDredge data instead of fallback mock data
-- Improved error handling in API responses
-- Enhanced database integration with 244 real stories from 1970-1977
-- Better data formatting for consistent frontend display
+- ✅ **Phase 1**: Real data ingestion and basic search
+- ✅ **Phase 2**: UI transparency and backend metrics
+- ✅ **Phase 3**: Codebase cleanup and optimization
+- ✅ **Phase 4**: Enhanced Jordi capabilities for narrative synthesis
+- 🔜 **Phase 5**: Full generative documentary treatment creation 
 
-### 🧪 Verification Tools
-- Added verification scripts to ensure API is using real data
-- Added automated tests for database integration
-- Improved error reporting and debugging
+## Recent Updates (v2.1.0) - June 23, 2024
 
-### 📊 Phase 2: Enhanced Backend Transparency
-- Added detailed metrics display showing:
-  - Total stories indexed
-  - Named entities extracted
-  - Narrative arcs generated
-  - Date range coverage
-  - Last data ingest timestamps
-- Enhanced tooltips explaining each metric and its significance
-- Improved stats API with comprehensive database information
+### 🤖 Enhanced Jordi Experience
+- Completely redesigned Jordi as the default landing page
+- Implemented split-screen interface with conversation (40%) and content display (60%)
+- Added conversation history and ability to revisit previous pitch ideas
+- Improved animation and visual feedback for a more engaging experience
+- Optimized for discovering compelling documentary and series pitches
+
+### 💡 UI/UX Improvements
+- Added subtle animations for a more dynamic user experience
+- Enhanced visual design with improved typography and spacing
+- Better highlighting of scandalous and provocative content
+- Improved chat interface with better loading states and feedback
+- Added Under Construction interfaces for Explore and Search tabs, keeping focus on Jordi
+
+### 🔍 Content Presentation
+- Redesigned pitch cards with improved visual hierarchy
+- Enhanced storytelling structure with focus on media production value
+- Better organization of related stories within narrative pitches
+- Improved scandalous content detection and emphasis
+- Professional yet engaging tone for executive-level presentations
 
 ## Data Pipeline
 
@@ -185,7 +193,7 @@ Raw News Sources → StoryDredge Pipeline → HSA Database → Human Story Atlas
 ## Roadmap
 
 - ✅ **Phase 1**: Real data ingestion and basic search
-- ✓ **Phase 2**: UI transparency and backend metrics
-- 🔄 **Phase 3**: Codebase cleanup and optimization
-- 🔜 **Phase 4**: Enhanced Jordi capabilities for narrative synthesis
-- 📝 **Phase 5**: Full generative documentary treatment creation 
+- ✅ **Phase 2**: UI transparency and backend metrics
+- ✅ **Phase 3**: Codebase cleanup and optimization
+- ✅ **Phase 4**: Enhanced Jordi capabilities for narrative synthesis
+- 🔜 **Phase 5**: Full generative documentary treatment creation 
