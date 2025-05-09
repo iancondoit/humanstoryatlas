@@ -47,7 +47,7 @@ export default function JordiPage() {
         <div className="flex items-center gap-2">
           <Globe className="h-6 w-6 text-blue-500 animate-pulse-glow" />
           <h1 className="text-2xl font-bold text-white">Human Story Atlas 🧬</h1>
-          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v2.1.1</span>
+          <span className="text-xs px-2 py-0.5 bg-blue-900/30 text-blue-300 rounded-full ml-2">v2.2.0</span>
         </div>
         <div className="flex items-center gap-4">
           {/* View Toggle */}
