@@ -213,3 +213,17 @@ Raw News Sources → StoryDredge Pipeline → HSA Database → Human Story Atlas
 - ✅ **Phase 3**: Codebase cleanup and optimization
 - ✅ **Phase 4**: Enhanced Jordi capabilities for narrative synthesis
 - 🔜 **Phase 5**: Full generative documentary treatment creation 
+
+## Deployment
+
+### Heroku Deployment
+
+Human Story Atlas can be deployed to Heroku easily. We've provided a detailed guide for deploying to Heroku:
+
+[Heroku Deployment Guide](docs/HEROKU_DEPLOYMENT.md)
+
+Key features of our Heroku deployment:
+- Automatic detection of PORT environment variable
+- Proper setup of Next.js for production
+- SQLite database included for easy deployment
+- Custom post-build steps for Prisma setup
