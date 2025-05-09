@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -17,7 +17,8 @@
     "detect-arcs": "npx ts-node src/scripts/arc-detection.ts",
     "db:clean": "npx ts-node scripts/clean-database.ts",
     "import:dredge": "npx ts-node scripts/import-stories.ts",
-    "verify:dredge": "node scripts/verify-import.js"
+    "verify:dredge": "node scripts/verify-import.js",
+    "heroku-postbuild": "npm run prisma:generate && npm run build"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",

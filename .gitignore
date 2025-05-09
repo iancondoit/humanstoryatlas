@@ -24,7 +24,8 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env
+# Don't ignore .env file, we need it for Heroku
+# .env
 
 # vercel
 .vercel
@@ -38,4 +39,7 @@ next-env.d.ts
 /hsa-clean
 /demo-app
 /human-story-atlas
-/StoryDredge 
+/StoryDredge
+
+# Don't ignore the SQLite database, we need it for Heroku
+# /prisma/hsa.db 
